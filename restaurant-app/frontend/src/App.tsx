@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import ChatWidget from './components/ChatWidget'
 import { useAuth } from './contexts/AuthContext'
 import LandingPage from './components/LandingPage'
 import CustomerLogin from './components/customer/Login'
@@ -40,5 +41,6 @@ export default function App() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    <ChatWidget />
   )
 }

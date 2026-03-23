@@ -77,7 +77,34 @@ export default function SettingsPanel() {
           {...f('ai_context')}
         />
       </div>
-
+      {/* QR Code section */}
+      <div className="card space-y-3">
+        <h3 className="font-semibold text-gray-700">QR Codes</h3>
+        <p className="text-xs text-gray-500">
+          Print these and place them on tables. Customers scan to open the ordering portal directly.
+        </p>
+        <div className="flex gap-3 flex-wrap">
+          
+            href={`${import.meta.env.VITE_API_URL}/api/qr/${import.meta.env.VITE_RESTAURANT_ID}?format=html`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-secondary text-sm"
+          >
+            View Restaurant QR
+          </a>
+          {[1,2,3,4,5,6,7,8,9,10].map(n => (
+            
+              key={n}
+              href={`${import.meta.env.VITE_API_URL}/api/qr/${import.meta.env.VITE_RESTAURANT_ID}?table=${n}&format=html`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-primary-600 hover:underline"
+            >
+              Table {n}
+            </a>
+          ))}
+        </div>
+      </div>
       <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2">
         <Save size={16} />
         {saving ? 'Saving...' : 'Save Settings'}

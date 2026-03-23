@@ -10,6 +10,11 @@ Includes:
 
 import json
 import logging
+import qrcode
+import io
+from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi import UploadFile, File
+from app.chat_service import process_chat
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -776,6 +781,128 @@ async def create_staff_user(req: StaffUserCreate, current_user: dict = Depends(r
     }).execute()
     return {"detail": "Staff user created.", "id": result.data[0]["id"]}
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# chat endpoint
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ChatRequest(BaseModel):
+    message: str
+    mode: str = "general"
+    restaurant_id: Optional[str] = None
+    table_number: Optional[str] = None
+    conversation_history: list = []
+
+@app.post("/api/chat")
+async def chat(req: ChatRequest, current_user: dict = Depends(get_current_user)):
+    db = get_db()
+    restaurant_id = req.restaurant_id or current_user.get("restaurant_id") or settings.default_restaurant_id
+
+    menu = db.table("menu_items").select("*").eq("restaurant_id", restaurant_id).execute()
+    user_data = db.table("user_sessions").select("allergies").eq("id", current_user["user_id"]).execute()
+    allergies = (user_data.data[0].get("allergies") or []) if user_data.data else []
+    settings_row = db.table("restaurant_policies").select("ai_context").eq("restaurant_id", restaurant_id).execute()
+    ai_context = (settings_row.data[0].get("ai_context") or "") if settings_row.data else ""
+
+    result = await process_chat(
+        message=req.message,
+        mode=req.mode,
+        restaurant_id=restaurant_id,
+        table_number=req.table_number,
+        menu_items=menu.data,
+        customer_allergies=allergies,
+        ai_context=ai_context,
+        conversation_history=req.conversation_history,
+    )
+
+    # If new allergies were detected in this message, persist them
+    if result.get("detected_allergies"):
+        existing = set(allergies)
+        new_ones = set(result["detected_allergies"])
+        merged = list(existing | new_ones)
+        db.table("user_sessions").update(
+            {"allergies": merged}
+        ).eq("id", current_user["user_id"]).execute()
+        logger.info(f"Updated allergies for {current_user['user_id']}: {merged}")
+
+    return result
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# QR CODE GENERATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/api/qr/{restaurant_id}")
+async def get_qr_code(
+    restaurant_id: str,
+    table: Optional[str] = None,
+    format: str = "png",          # png or html (html shows download page)
+):
+    """
+    Generate a QR code for a specific restaurant (and optionally a table).
+    Scan → opens customer login with restaurant_id + table pre-filled.
+    """
+    base_url = settings.allowed_origins.split(",")[0].strip()  # first origin = frontend URL
+    url = f"{base_url}/customer/login?restaurant={restaurant_id}"
+    if table:
+        url += f"&table={table}"
+
+    # Generate QR image
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+
+    if format == "html":
+        # Returns a simple HTML page staff can print
+        import base64
+        img_b64 = base64.b64encode(buf.getvalue()).decode()
+        label = f"Table {table}" if table else "Restaurant QR"
+        html = f"""
+        <html><body style="text-align:center;font-family:sans-serif;padding:40px">
+          <h2>{label}</h2>
+          <img src="data:image/png;base64,{img_b64}" style="width:300px"/>
+          <p style="font-size:12px;color:#888">{url}</p>
+          <a href="data:image/png;base64,{img_b64}" download="qr_{restaurant_id}_{table or 'main'}.png">
+            Download PNG
+          </a>
+        </body></html>
+        """
+        return HTMLResponse(content=html)
+
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="image/png",
+        headers={"Content-Disposition": f"inline; filename=qr_{restaurant_id}.png"})
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VOICE TRANSCRIPTION (Whisper via Groq)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.post("/api/transcribe")
+async def transcribe_voice(
+    audio: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Accepts an audio file (webm/mp4/wav), sends it to Groq Whisper,
+    returns the transcribed text. Frontend pastes this into the chat input.
+    """
+    try:
+        client = get_groq()
+        audio_bytes = await audio.read()
+
+        transcription = client.audio.transcriptions.create(
+            model="whisper-large-v3",
+            file=(audio.filename or "audio.webm", audio_bytes, audio.content_type or "audio/webm"),
+            response_format="text",
+        )
+        return {"text": transcription}
+
+    except Exception as e:
+        logger.error(f"Transcription error: {e}")
+        raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # WEBSOCKET ENDPOINTS

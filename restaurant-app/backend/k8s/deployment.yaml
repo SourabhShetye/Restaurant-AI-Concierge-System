@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-concierge-backend
+  namespace: default
+spec:
+  replicas: 2                      # 2 instances for high availability
+  selector:
+    matchLabels:
+      app: ai-concierge-backend
+  template:
+    metadata:
+      labels:
+        app: ai-concierge-backend
+    spec:
+      containers:
+        - name: backend
+          image: your-dockerhub-username/ai-concierge-backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: ai-concierge-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:           # Kubernetes restarts the pod if /health fails
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:          # Kubernetes waits for this before sending traffic
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10

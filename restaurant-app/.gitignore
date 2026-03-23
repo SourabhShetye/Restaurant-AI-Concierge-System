@@ -36,3 +36,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+backend/k8s/secrets.yaml
+backend/.env
+frontend/.env

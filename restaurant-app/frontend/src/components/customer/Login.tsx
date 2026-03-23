@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { authApi } from '@/services/api'
@@ -16,14 +16,18 @@ export default function CustomerLogin() {
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
   const [phone, setPhone] = useState('')
-  const [tableNumber, setTableNumber] = useState('')
+  const [tableNumber, setTableNumber] = useState(qrTable)
   const [allergies, setAllergies] = useState<string[]>([])
   const [showPin, setShowPin] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { login } = useAuth()
 
-  const restaurantId = import.meta.env.VITE_RESTAURANT_ID
+  // QR codes pass restaurant_id and table as URL params
+  const restaurantId = searchParams.get('restaurant') || import.meta.env.VITE_RESTAURANT_ID
+  const qrTable = searchParams.get('table') || ''
 
   const toggleAllergen = (a: string) =>
     setAllergies((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]))
