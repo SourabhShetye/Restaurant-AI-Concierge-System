@@ -14,16 +14,6 @@
 
 ---
 
-## 📸 Screenshots
-
-> *Customer ordering via AI chat · Staff kitchen display · CRM dashboard*
-
-| Customer Chat | Kitchen Display | CRM Dashboard |
-|:---:|:---:|:---:|
-| AI-powered ordering | Real-time order queue | Customer insights + ARPU |
-
----
-
 ## 🎯 What This Is
 
 A **full-stack SaaS restaurant platform** supporting multiple restaurants from a single deployment. Customers scan a QR code unique to their table, order food in natural language, track their order in real time, and pay — all without staff involvement until the food is ready. Staff get a live kitchen display, smart billing, booking management, and an AI operations assistant.
