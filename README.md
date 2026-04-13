@@ -26,7 +26,7 @@
 
 ## 🎯 What This Is
 
-A **full-stack SaaS restaurant platform** supporting multiple restaurants from a single deployment. Customers scan a QR code unique to their table, order food in natural language (text or voice), track their order in real time, and pay — all without staff involvement until the food is ready. Staff get a live kitchen display, smart billing, booking management, and an AI operations assistant.
+A **full-stack SaaS restaurant platform** supporting multiple restaurants from a single deployment. Customers scan a QR code unique to their table, order food in natural language, track their order in real time, and pay — all without staff involvement until the food is ready. Staff get a live kitchen display, smart billing, booking management, and an AI operations assistant.
 
 **This is not a prototype.** It handles concurrent multi-tenant data isolation, deterministic AI conversation flows, real-time WebSocket broadcasting, and production-grade authentication.
 
@@ -233,16 +233,16 @@ restaurant-app/
 
 ## 🔐 Demo Credentials
 
-> **Live Demo:** [your-app.vercel.app](https://your-app.vercel.app)
+> **Live Demo:** [your-app.vercel.app]([https://your-app.vercel.app](https://ai-concierge-app-frontend.vercel.app/)
 
 | Portal | Credentials |
 |--------|-------------|
 | Customer | Register with any name + 4-digit PIN at the login page |
-| Staff (Admin) | Username: `admin` · Password: `[ask me]` |
-| Staff (Chef) | Username: `chef` · Password: `[ask me]` |
+| Staff (Admin) | Username: `admin` · Password: `12345` |
 
 **Test restaurants available:**
-- 🍔 The Tech Bistro — default restaurant
+- My Restaurant - Default Option
+- 🍔 The Tech Bistro 
 - 🌯 Cloud Kitchen Dubai
 - 🏙️ The Rooftop Grill
 
@@ -283,9 +283,9 @@ restaurant-app/
 
 ## 👨‍💻 Author
 
-**Sourabh** — Final Year CS Student
+**Sourabh Shetye** — Final Year CS Student
 
-Built as a complete ground-up rebuild of a Telegram-based restaurant bot, demonstrating full-stack AI engineering with production-grade architecture.
+Built as a complete ground-up rebuild of a Telegram-based restaurant bot prototype, demonstrating full-stack AI engineering with production-grade architecture.
 
 [![GitHub](https://img.shields.io/badge/GitHub-@yourusername-181717?style=flat&logo=github)](https://github.com/SourabhShetye)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/sourabh-shetye-36b9282b4)
