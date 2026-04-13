@@ -150,46 +150,6 @@ best_table = available[0]  # Assigns 4-seat, not 6 or 8
 
 ---
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11+, Node.js 18+
-- Supabase account (free tier)
-- Groq API key (free tier — [console.groq.com](https://console.groq.com))
-
-### 1. Clone & Setup
-```bash
-git clone https://github.com/yourusername/restaurant-ai-concierge
-cd restaurant-ai-concierge/restaurant-app
-```
-
-### 2. Backend
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-# Fill in: SUPABASE_URL, SUPABASE_SERVICE_KEY, GROQ_API_KEY, JWT_SECRET, DEFAULT_RESTAURANT_ID
-uvicorn app.main:app --reload --port 8000
-```
-
-### 3. Frontend
-```bash
-cd frontend
-npm install
-cp .env.example .env
-# Fill in: VITE_API_URL, VITE_WS_URL, VITE_RESTAURANT_ID
-npm run dev
-```
-
-### 4. Database
-Run the SQL schema from `docs/SETUP.md` in your Supabase SQL Editor. Takes ~2 minutes.
-
-**API docs available at:** `http://localhost:8000/docs`
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -253,7 +213,7 @@ restaurant-app/
 
 ## 📊 Performance Characteristics
 
-- **Order placement** (voice → kitchen notification): ~3-5 seconds
+- **Order placement** (chatbot → kitchen notification): ~1-3 seconds
 - **WebSocket latency** (order ready → customer notification): <100ms
 - **Concurrent users**: Tested with 3 restaurants, multiple tables simultaneously
 - **AI response time**: ~800ms-1.5s (Groq LPU inference)
