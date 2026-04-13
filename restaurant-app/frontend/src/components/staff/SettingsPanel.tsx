@@ -186,7 +186,7 @@ export default function SettingsPanel() {
             </div>
 
             {tables.map((table, idx) => {
-              const isEditingThis = editingTable === (table.id || 'new') && (table.id || table.isNew)
+              const isEditingThis = editingTable === (table.id || 'new') && !!(table.id || table.isNew)
 
               return (
                 <div key={table.id || `new-${idx}`}

@@ -52,6 +52,7 @@ export interface Order {
   modification_status: ModificationStatus
   allergy_warnings?: string[]
   created_at: string
+  daily_order_number?: number
 }
 
 export interface PlaceOrderResponse extends Order {
