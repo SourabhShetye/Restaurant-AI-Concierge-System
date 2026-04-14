@@ -108,6 +108,7 @@ export const bookingApi = {
   getStaffBookings: () => api.get('/api/staff/bookings'),
   confirmBooking: (id: string) => api.put(`/api/staff/bookings/${id}/confirm`),
   staffCancelBooking: (id: string) => api.delete(`/api/staff/bookings/${id}`),
+  purgeBooking: (id: string) => api.delete(`/api/staff/bookings/${id}/purge`),
 }
 
 // ─── Feedback ─────────────────────────────────────────────────────────────────

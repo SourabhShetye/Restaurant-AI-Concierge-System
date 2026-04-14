@@ -1451,6 +1451,22 @@ async def staff_cancel_booking(booking_id: str):
     db.table("bookings").update({"status": "cancelled"}).eq("id", booking_id).execute()
     return {"detail": "Booking cancelled."}
 
+@app.delete("/api/staff/bookings/{booking_id}/purge", dependencies=[Depends(require_staff)])
+async def purge_booking(booking_id: str, current_user: dict = Depends(require_staff)):
+    """Permanently delete a cancelled booking record."""
+    db = get_db()
+    # Verify it belongs to this restaurant and is cancelled
+    booking = db.table("bookings").select("*").eq("id", booking_id).execute()
+    if not booking.data:
+        raise HTTPException(status_code=404, detail="Booking not found.")
+    b = booking.data[0]
+    if b.get("restaurant_id") != current_user["restaurant_id"]:
+        raise HTTPException(status_code=403, detail="Not your booking.")
+    if b.get("status") != "cancelled":
+        raise HTTPException(status_code=409, detail="Only cancelled bookings can be purged.")
+    db.table("bookings").delete().eq("id", booking_id).execute()
+    return {"detail": "Booking permanently deleted."}
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CRM
 # ═══════════════════════════════════════════════════════════════════════════════
